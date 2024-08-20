@@ -41,8 +41,7 @@ class BracketToken:
         
         for index, char in enumerate(expression):
             if bracketDepth == 0:
-                if char in "&%#":
-                    charBuffer += char
+                if char in "&|#":
                     tokenBuffer.append(
                         OperatorToken(
                             expression=char
@@ -50,9 +49,7 @@ class BracketToken:
                     )
                     
                     charBuffer = ""
-                elif char in "abcdefghijklmnopqrstuvwxyz":         
-                    charBuffer += char
-                    
+                elif char in "abcdefghijklmnopqrstuvwxyz":
                     tokenBuffer.append(
                         LiteralToken(
                             expression=char,
@@ -60,6 +57,11 @@ class BracketToken:
                         )
                     )
                     charBuffer = ""
+                elif char in " ~()":
+                    pass
+                else:
+                    print("error: invalid syntax")
+                    sys.exit()
                     
             if bracketDepth > 0 and not char == ")":
                 charBuffer += char
@@ -79,6 +81,7 @@ class BracketToken:
                         applyNot=applyNot
                     )
                 )
+                
                 charBuffer = ""
                 
             counter += 1
@@ -110,6 +113,9 @@ class EvaluatedToken:
     def __init__(self, value: bool):
         self.value = value
         
+    def __str__(self) -> str:
+        return f"EvaluatedToken(value={self.value})"
+        
 class Tokenizer:
     def tokenize(self, expression: str):
         bracketDepth = 0
@@ -125,8 +131,7 @@ class Tokenizer:
         
         for index, char in enumerate(expression):
             if not bracketDepth:
-                if char in "&%#":
-                    charBuffer += char
+                if char in "&|#":
                     tokenBuffer.append(
                         OperatorToken(
                             expression=char
@@ -135,8 +140,6 @@ class Tokenizer:
                     
                     charBuffer = ""
                 elif char in "abcdefghijklmnopqrstuvwxyz":         
-                    charBuffer += char
-                    
                     tokenBuffer.append(
                         LiteralToken(
                             expression=char,
@@ -144,6 +147,11 @@ class Tokenizer:
                         )
                     )
                     charBuffer = ""
+                elif char in " ~()":
+                    pass
+                else:
+                    print("error: invalid syntax")
+                    sys.exit()
                     
             if bracketDepth > 0 and not char == ")":
                 charBuffer += char
