@@ -36,7 +36,7 @@ class Evaluator:
                 
                 if tkn.expression == "&":
                     return EvaluatedToken(not (leftEval and rightEval) if token.applyNot else (leftEval and rightEval))
-                elif tkn.expression == "%":
+                elif tkn.expression == "|":
                     return EvaluatedToken(not (leftEval or rightEval) if token.applyNot else (leftEval or rightEval))
                 elif tkn.expression == "#":
                     return EvaluatedToken(not self._xor(leftEval, rightEval) if token.applyNot else self._xor(leftEval, rightEval))
@@ -69,15 +69,15 @@ class Evaluator:
         originalTokens = copy.deepcopy(tokens)
         
         results = []
-            
-        for map in maps:
+
+        for map in maps:                       
             tokens = copy.deepcopy(originalTokens)
             
             for index, token in enumerate(tokens):
                 if isinstance(token, BracketToken):
                     tokens[index] = self.evaluateBracket(token, map)
             
-            for index, token in enumerate(tokens):
+            for index, token in enumerate(tokens):                
                 if isinstance(token, OperatorToken):
                     if index != 0:
                         left = tokens[index - 1]
@@ -99,10 +99,10 @@ class Evaluator:
                 
                         if token.expression == "&":
                             tokens[index] = EvaluatedToken(leftEval and rightEval)
-                        elif token.expression == "%":
+                        elif token.expression == "|":
                             tokens[index] = EvaluatedToken(leftEval or rightEval)
                         elif token.expression == "#":
-                            tokens[index] =  EvaluatedToken(self._xor(leftEval, rightEval))
+                            tokens[index] = EvaluatedToken(self._xor(leftEval, rightEval))
                 
                         tokens.pop(index - 1)
                         tokens.pop(index)
