@@ -73,7 +73,7 @@ class BracketToken:
             if char == ")" and bracketDepth > 1:
                 charBuffer += char
                 bracketDepth -= 1
-            if char == ")" and bracketDepth == 1:
+            elif char == ")" and bracketDepth == 1:
                 bracketDepth -= 1
                 tokenBuffer.append(
                     BracketToken(
@@ -163,7 +163,7 @@ class Tokenizer:
             if char == ")" and bracketDepth > 1:
                 charBuffer += char
                 bracketDepth -= 1
-            if char == ")" and bracketDepth == 1:
+            elif char == ")" and bracketDepth == 1:
                 bracketDepth -= 1
                 tokenBuffer.append(
                     BracketToken(
