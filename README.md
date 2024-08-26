@@ -23,3 +23,17 @@ negations are done with the `~` character, so `~(a & b)` would be a `NAND` gate.
 `NAND` gate: `~(a & b)`  
 `NOR` gate: `~(a | b)`  
 `XNOR` gate: `~(a # b)`  
+
+# parsing method
+
+the evaluator (`logic/evaluator.py`) parses from a left to right basis. here's an example:  
+
+`a, b, c, d = true`
+
+`a & b | c # d`    
+
+1. evaluate `a & b` -> `true`
+2. evaluate `true | c` -> `true`
+3. evaluate `true # d` -> `false`
+
+final result = `false`
