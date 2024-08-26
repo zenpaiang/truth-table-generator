@@ -44,7 +44,9 @@ class Evaluator:
                 bracket.tokens[index] = self.evaluateBracket(token, map)
         
         tokens = bracket.tokens
-        token = EvaluatedToken(self.evaluate(tokens, map))
+        value = self.evaluate(tokens, map)
+        
+        token = EvaluatedToken(not value if bracket.applyNot else value)
         
         return token
     
