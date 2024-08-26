@@ -8,45 +8,8 @@ class Evaluator:
                 
     def _xor(self, a: bool, b: bool) -> bool:
         return (a and not b) or (not a and b)
-
-    def evaluateBracket(self, token: BracketToken, map: dict):
-        for index, tkn in enumerate(token.tokens):
-            if isinstance(tkn, BracketToken):
-                token.tokens[index] = self.evaluateBracket(tkn, map)
-        
-        for index, tkn in enumerate(token.tokens):
-            if isinstance(tkn, OperatorToken):
-                if index != 0:
-                    left = token.tokens[index - 1]
-                    right = token.tokens[index + 1]
-                    
-                    if isinstance(left, OperatorToken) or isinstance(right, OperatorToken):
-                        print("error: invalid syntax")
-                        sys.exit()
-                        
-                    if isinstance(left, EvaluatedToken):
-                        leftEval = left.value
-                    else:
-                        leftEval =  not map[left.expression] if left.applyNot else map[left.expression]
-                        
-                    if isinstance(right, EvaluatedToken):
-                        rightEval = right.value
-                    else:
-                        rightEval = not map[right.expression] if right.applyNot else map[right.expression]
-                
-                if tkn.expression == "&":
-                    return EvaluatedToken(not (leftEval and rightEval) if token.applyNot else (leftEval and rightEval))
-                elif tkn.expression == "|":
-                    return EvaluatedToken(not (leftEval or rightEval) if token.applyNot else (leftEval or rightEval))
-                elif tkn.expression == "#":
-                    return EvaluatedToken(not self._xor(leftEval, rightEval) if token.applyNot else self._xor(leftEval, rightEval))
-                
-                token.tokens.pop(index - 1)
-                token.tokens.pop(index)
-                
-    def evaluate(self, tokens: list):
-        # Create map for all the variables
-        
+    
+    def evaluateMaps(self, tokens: list):
         for token in tokens:
             if isinstance(token, LiteralToken) and token.expression not in self.variables:
                 self.variables.append(token.expression) 
@@ -56,6 +19,7 @@ class Evaluator:
                         self.variables.append(variable)
         
         values = self.generate_values(len(self.variables))
+        
         maps = []
         
         for value in values:
@@ -66,50 +30,71 @@ class Evaluator:
                 
             maps.append(currMap)
             
-        originalTokens = copy.deepcopy(tokens)
-        
         results = []
-
-        for map in maps:                       
-            tokens = copy.deepcopy(originalTokens)
             
-            for index, token in enumerate(tokens):
-                if isinstance(token, BracketToken):
-                    tokens[index] = self.evaluateBracket(token, map)
+        for map in maps:
+            newTokens = copy.deepcopy(tokens)
+            results.append([map, self.evaluate(newTokens, map)])
             
-            for index, token in enumerate(tokens):                
-                if isinstance(token, OperatorToken):
-                    if index != 0:
-                        left = tokens[index - 1]
-                        right = tokens[index + 1]
-                    
-                        if isinstance(left, OperatorToken) or isinstance(right, OperatorToken):
-                            print("error: invalid syntax")
-                            sys.exit()
-                            
-                        if isinstance(left, EvaluatedToken):
-                            leftEval = left.value
-                        else:
-                            leftEval =  not map[left.expression] if left.applyNot else map[left.expression]
-                            
-                        if isinstance(right, EvaluatedToken):
-                            rightEval = right.value
-                        else:
-                            rightEval = not map[right.expression] if right.applyNot else map[right.expression]
-                
-                        if token.expression == "&":
-                            tokens[index] = EvaluatedToken(leftEval and rightEval)
-                        elif token.expression == "|":
-                            tokens[index] = EvaluatedToken(leftEval or rightEval)
-                        elif token.expression == "#":
-                            tokens[index] = EvaluatedToken(self._xor(leftEval, rightEval))
-                
-                        tokens.pop(index - 1)
-                        tokens.pop(index)
-            
-            results.append([map, tokens[0].value])
-        
         return results
+    
+    def evaluateBracket(self, bracket: BracketToken, map: dict) -> EvaluatedToken:
+        for index, token in enumerate(bracket.tokens):
+            if isinstance(token, BracketToken):
+                bracket.tokens[index] = self.evaluateBracket(token, map)
+        
+        tokens = bracket.tokens
+        token = EvaluatedToken(self.evaluate(tokens, map))
+        
+        return token
+    
+    def evaluate(self, tokens: list, map: dict) -> bool:
+        for index, token in enumerate(tokens):
+            if isinstance(token, BracketToken):
+                tokens[index] = self.evaluateBracket(token, map)
+        
+        index = 0
+        
+        while index < len(tokens):
+            currentToken = tokens[index]
+            
+            if isinstance(currentToken, OperatorToken):
+                if index != 0:
+                    leftToken = tokens[index - 1]
+                    rightToken = tokens[index + 1]
+                    
+                    if isinstance(leftToken, OperatorToken) or isinstance(rightToken, OperatorToken):
+                        print("error: invalid syntax")
+                        sys.exit()
+                        
+                    if isinstance(leftToken, EvaluatedToken):
+                        leftEval = leftToken.value
+                    else:
+                        leftEval = not map[leftToken.expression] if leftToken.applyNot else map[leftToken.expression]
+                    
+                    if isinstance(rightToken, EvaluatedToken):
+                        rightEval = rightToken.value
+                    else:
+                        rightEval = not map[rightToken.expression] if rightToken.applyNot else map[rightToken.expression]
+                        
+                    if currentToken.expression == "&":
+                        tokens[index] = EvaluatedToken(leftEval and rightEval)
+                    elif currentToken.expression == "|":
+                        tokens[index] = EvaluatedToken(leftEval or rightEval)
+                    elif currentToken.expression == "#":
+                        tokens[index] = EvaluatedToken(self._xor(leftEval, rightEval))
+                        
+                    tokens.pop(index - 1)
+                    tokens.pop(index)
+                    
+                    index = 0
+                else:
+                    print("error: invalid syntax")
+                    sys.exit()
+        
+            index += 1
+            
+        return tokens[0].value
         
     def _extract_bracket_literals(self, tokens: list) -> list:
         actualTokens = "".join([token.expression for token in tokens])
