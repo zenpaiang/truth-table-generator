@@ -7,7 +7,7 @@ class TruthTableGenerator:
         tokens = tokenizer.tokenize(expression)
 
         evaluator = Evaluator()
-        evaluated = evaluator.evaluate(tokens)
+        evaluated = evaluator.evaluateMaps(tokens)
         
         rs = {}
 
