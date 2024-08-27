@@ -20,7 +20,7 @@ class BracketToken:
     def __init__(self, expression: str, applyNot: bool):
         self.expression = expression
         self.actual = ("~" if applyNot else "") + f"({expression}"
-        self.tokens: list[LiteralToken | OperatorToken] = []
+        self.tokens: list = []
         self.applyNot = applyNot
         
         bracketDepth = 0
