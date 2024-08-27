@@ -1,9 +1,4 @@
 import sys
-
-class TokenType:
-    BRACKET = 0
-    OPERATOR = 1
-    LITERAL = 2
         
 class LiteralToken:
     def __init__(self, expression: str, applyNot: bool):
