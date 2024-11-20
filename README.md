@@ -1,6 +1,6 @@
 # truth table generator
 
-a truth table generator i wrote when learning about boolean logic in my computer science class
+a tokenizer + truth table generator i wrote while at the airport
 
 # bad code
 
